@@ -1,5 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.EntityFrameworkCore;
 using MyFace.Models.Database;
 using MyFace.Models.Request;
@@ -60,12 +64,17 @@ namespace MyFace.Repositories
 
         public User Create(CreateUserRequest newUser)
         {
+            var salt = CreateSalt();
+            var hashedPassword = CreateHash(salt, newUser.Password);
+
             var insertResponse = _context.Users.Add(new User
             {
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
                 Email = newUser.Email,
                 Username = newUser.Username,
+                Salt = salt,
+                HashedPassword = hashedPassword,
                 ProfileImageUrl = newUser.ProfileImageUrl,
                 CoverImageUrl = newUser.CoverImageUrl,
             });
@@ -96,6 +105,28 @@ namespace MyFace.Repositories
             var user = GetById(id);
             _context.Users.Remove(user);
             _context.SaveChanges();
+        }
+
+        public static string CreateSalt()
+        {
+            var salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+            return Convert.ToBase64String(salt);
+        }
+
+        public static string CreateHash(string salt, string password)
+        {
+            var convertedSalt = Encoding.ASCII.GetBytes(salt);
+            var hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: password,
+                salt: convertedSalt,
+                prf: KeyDerivationPrf.HMACSHA1,
+                iterationCount: 10000,
+                numBytesRequested: 256 / 8));
+            return hashed;
         }
     }
 }
