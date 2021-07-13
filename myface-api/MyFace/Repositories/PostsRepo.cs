@@ -19,7 +19,7 @@ namespace MyFace.Repositories
         Post Create(CreatePostRequest post);
         Post Update(int id, UpdatePostRequest update);
         void Delete(int id);
-        bool DoBasicAuth(string authHeader);
+        bool IsAthenticated(string authHeader);
     }
     
     public class PostsRepo : IPostsRepo
@@ -109,7 +109,7 @@ namespace MyFace.Repositories
             _context.SaveChanges();
         }
 
-        public bool DoBasicAuth(string authHeader)
+        public bool IsAthenticated(string authHeader)
         {
             if (authHeader != null && authHeader.StartsWith("Basic"))
             {
@@ -132,9 +132,7 @@ namespace MyFace.Repositories
             }
             else
             {
-                //throw new HttpResponseException(HttpStatusCode.Unauthorized);
-
-                throw new Exception("The authorization header is either empty or isn't Basic.");
+                return false;
             }
         }
     }
