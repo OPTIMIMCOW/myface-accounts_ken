@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
+using System;
+using System.Text;
 
 namespace MyFace.Controllers
 {
@@ -27,7 +30,26 @@ namespace MyFace.Controllers
         [HttpGet("{id}")]
         public ActionResult<PostResponse> GetById([FromRoute] int id)
         {
-            var authHeader = HttpContext.Request.Headers["Authorization"];
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+
+            if (authHeader != null && authHeader.StartsWith("Basic"))
+            {
+                string encodedUsernamePassword = authHeader.Substring("Basic ".Length).Trim();
+                Encoding encoding = Encoding.GetEncoding("iso-8859-1");
+                string usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
+
+                int seperatorIndex = usernamePassword.IndexOf(':');
+
+                var username = usernamePassword.Substring(0, seperatorIndex);
+                var password = usernamePassword.Substring(seperatorIndex + 1);
+            }
+            else
+            {
+                //Handle what happens if that isn't the case
+                throw new Exception("The authorization header is either empty or isn't Basic.");
+            }
+
+
 
             //System.Web.HttpContext.Current
             //HttpContext httpContext = HttpContext.Current;
