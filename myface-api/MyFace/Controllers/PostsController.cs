@@ -11,20 +11,27 @@ namespace MyFace.Controllers
     [ApiController]
     [Route("/posts")]
     public class PostsController : ControllerBase
-    {    
+    {
         private readonly IPostsRepo _posts;
 
         public PostsController(IPostsRepo posts)
         {
             _posts = posts;
         }
-        
+
         [HttpGet("")]
         public ActionResult<PostListResponse> Search([FromQuery] PostSearchRequest searchRequest)
         {
-            var posts = _posts.Search(searchRequest);
-            var postCount = _posts.Count(searchRequest);
-            return PostListResponse.Create(searchRequest, posts, postCount);
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var authenticated = _posts.DoBasicAuth(authHeader);
+
+            if (authenticated)
+            {
+                var posts = _posts.Search(searchRequest);
+                var postCount = _posts.Count(searchRequest);
+                return PostListResponse.Create(searchRequest, posts, postCount);
+            }
+            return null;
         }
 
         [HttpGet("{id}")]
@@ -38,45 +45,65 @@ namespace MyFace.Controllers
                 var post = _posts.GetById(id);
                 return new PostResponse(post);
             }
-            else
-            {
-                return null;
-            }
-            
+
+            return null;
         }
 
         [HttpPost("create")]
         public IActionResult Create([FromBody] CreatePostRequest newPost)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
-            var post = _posts.Create(newPost);
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var authenticated = _posts.DoBasicAuth(authHeader);
 
-            var url = Url.Action("GetById", new { id = post.Id });
-            var postResponse = new PostResponse(post);
-            return Created(url, postResponse);
+            if (authenticated)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var post = _posts.Create(newPost);
+
+                var url = Url.Action("GetById", new { id = post.Id });
+                var postResponse = new PostResponse(post);
+                return Created(url, postResponse);
+            }
+            return null;
         }
 
         [HttpPatch("{id}/update")]
         public ActionResult<PostResponse> Update([FromRoute] int id, [FromBody] UpdatePostRequest update)
         {
-            if (!ModelState.IsValid)
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var authenticated = _posts.DoBasicAuth(authHeader);
+
+            if (authenticated)
             {
-                return BadRequest(ModelState);
+
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                var post = _posts.Update(id, update);
+                return new PostResponse(post);
             }
 
-            var post = _posts.Update(id, update);
-            return new PostResponse(post);
+            return null;
         }
 
         [HttpDelete("{id}")]
         public IActionResult Delete([FromRoute] int id)
         {
-            _posts.Delete(id);
-            return Ok();
+            var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var authenticated = _posts.DoBasicAuth(authHeader);
+
+            if (authenticated)
+            {
+                _posts.Delete(id);
+                return Ok();
+            }
+            return null;
         }
     }
 }
