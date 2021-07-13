@@ -31,39 +31,18 @@ namespace MyFace.Controllers
         public ActionResult<PostResponse> GetById([FromRoute] int id)
         {
             var authHeader = HttpContext.Request.Headers["Authorization"].ToString();
+            var authenticated = _posts.DoBasicAuth(authHeader);
 
-            if (authHeader != null && authHeader.StartsWith("Basic"))
+            if (authenticated)
             {
-                string encodedUsernamePassword = authHeader.Substring("Basic ".Length).Trim();
-                Encoding encoding = Encoding.GetEncoding("iso-8859-1");
-                string usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
-
-                int seperatorIndex = usernamePassword.IndexOf(':');
-
-                var username = usernamePassword.Substring(0, seperatorIndex);
-                var password = usernamePassword.Substring(seperatorIndex + 1);
+                var post = _posts.GetById(id);
+                return new PostResponse(post);
             }
             else
             {
-                //Handle what happens if that isn't the case
-                throw new Exception("The authorization header is either empty or isn't Basic.");
+                return null;
             }
-
-
-
-            //System.Web.HttpContext.Current
-            //HttpContext httpContext = HttpContext.Current;
-            //HttpContext httpContext = HttpContext.Request;
-
-            //var authHeader = this.httpContext.Request.Headers["Authorization"];
-            // get the authentication parameters
-            // get user from username = > get salt
-            // hash password and compare
-            // if true proceed otherwise send bad request
-            //69	Brandon	Narraway	bnarraway4	bnarraway4@trellian.com	https://robohash.org/bnarraway4?set=any&bgset=any	https://picsum.photos/id/604/2400/900.jpg	U2Xl2FfWAjKhUJe80758QDCcJh3eW/Wva0b1qUsE2rA=	BoqxLjHCBsAFhYIggwLzmg==
-
-            var post = _posts.GetById(id);
-            return new PostResponse(post);
+            
         }
 
         [HttpPost("create")]

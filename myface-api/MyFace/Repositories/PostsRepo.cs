@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using MyFace.Models.Database;
 using MyFace.Models.Request;
+using MyFace.Repositories;
 
 namespace MyFace.Repositories
 {
@@ -17,6 +19,7 @@ namespace MyFace.Repositories
         Post Create(CreatePostRequest post);
         Post Update(int id, UpdatePostRequest update);
         void Delete(int id);
+        bool DoBasicAuth(string authHeader);
     }
     
     public class PostsRepo : IPostsRepo
@@ -104,6 +107,35 @@ namespace MyFace.Repositories
             var post = GetById(id);
             _context.Posts.Remove(post);
             _context.SaveChanges();
+        }
+
+        public bool DoBasicAuth(string authHeader)
+        {
+            if (authHeader != null && authHeader.StartsWith("Basic"))
+            {
+                var encodedUsernamePassword = authHeader.Substring("Basic ".Length).Trim();
+                var encoding = Encoding.GetEncoding("iso-8859-1");
+                var usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
+                var seperatorIndex = usernamePassword.IndexOf(':');
+                var username = usernamePassword.Substring(0, seperatorIndex);
+                var password = usernamePassword.Substring(seperatorIndex + 1);
+                try
+                {
+                    var user = _context.Users.Where(u => u.Username==username).First();
+                    var testHashedPassword = UsersRepo.CreateHash(user.Salt, password);
+                    return (testHashedPassword == user.HashedPassword) ? true : false;
+                }
+                catch (Exception e)
+                {
+                    throw e;
+                }
+            }
+            else
+            {
+                //throw new HttpResponseException(HttpStatusCode.Unauthorized);
+
+                throw new Exception("The authorization header is either empty or isn't Basic.");
+            }
         }
     }
 }
