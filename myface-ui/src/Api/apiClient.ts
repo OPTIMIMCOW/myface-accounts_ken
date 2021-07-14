@@ -41,7 +41,13 @@ export interface NewPost {
 }
 
 export async function fetchUsers(searchTerm: string, page: number, pageSize: number): Promise<ListResponse<User>> {
-    const response = await fetch(`https://localhost:5001/users?search=${searchTerm}&page=${page}&pageSize=${pageSize}`);
+    const response = await fetch(`https://localhost:5001/users?search=${searchTerm}&page=${page}&pageSize=${pageSize}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic Ym1hY2xpc2UxejpQYXNzd29yZDE='
+        }
+    });
     return await response.json();
 }
 
@@ -51,7 +57,13 @@ export async function fetchUser(userId: string | number): Promise<User> {
 }
 
 export async function fetchPosts(page: number, pageSize: number): Promise<ListResponse<Post>> {
-    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}`);
+    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic Ym1hY2xpc2UxejpQYXNzd29yZDE='
+        }
+    });
     return await response.json();
 }
 
