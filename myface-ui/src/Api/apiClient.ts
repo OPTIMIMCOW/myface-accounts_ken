@@ -40,89 +40,88 @@ export interface NewPost {
     userId: number;
 }
 
-export async function fetchUsers(searchTerm: string, page: number, pageSize: number,userName: string, password: string): Promise<ListResponse<User>> {
+
+function prepareBasicAuth(userName: string, password: string) {
     const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
+    return `Basic ${encodedAuth}`;
+}
+
+export async function fetchUsers(searchTerm: string, page: number, pageSize: number, userName: string, password: string): Promise<ListResponse<User>> {
     const response = await fetch(`https://localhost:5001/users?search=${searchTerm}&page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         }
     });
     return await response.json();
 }
 
 export async function fetchUser(userId: string | number, userName: string, password: string): Promise<User> {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/users/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         }
     });
     return await response.json();
 }
 
 export async function fetchPosts(page: number, pageSize: number, userName: string, password: string): Promise<ListResponse<Post>> {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         }
     });
     return await response.json();
 }
 
 export async function fetchPostsForUser(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&postedBy=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         }
     });
     return await response.json();
 }
 
 export async function fetchPostsLikedBy(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&likedBy=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         }
     });
     return await response.json();
 }
 
 export async function fetchPostsDislikedBy(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&dislikedBy=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         }
     });
     return await response.json();
 }
 
 export async function createPost(newPost: NewPost, userName: string, password: string) {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/posts/create`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            'Authorization': `Basic ${encodedAuth}`
+            'Authorization': prepareBasicAuth(userName,password)
         },
         body: JSON.stringify(newPost),
     });
-    
+
     if (!response.ok) {
         throw new Error(await response.json())
     }
