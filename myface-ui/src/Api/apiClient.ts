@@ -40,53 +40,85 @@ export interface NewPost {
     userId: number;
 }
 
-export async function fetchUsers(searchTerm: string, page: number, pageSize: number): Promise<ListResponse<User>> {
+export async function fetchUsers(searchTerm: string, page: number, pageSize: number,userName: string, password: string): Promise<ListResponse<User>> {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/users?search=${searchTerm}&page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic Ym1hY2xpc2UxejpQYXNzd29yZDE='
+            'Authorization': `Basic ${encodedAuth}`
         }
     });
     return await response.json();
 }
 
-export async function fetchUser(userId: string | number): Promise<User> {
-    const response = await fetch(`https://localhost:5001/users/${userId}`);
+export async function fetchUser(userId: string | number, userName: string, password: string): Promise<User> {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
+    const response = await fetch(`https://localhost:5001/users/${userId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${encodedAuth}`
+        }
+    });
     return await response.json();
 }
 
-export async function fetchPosts(page: number, pageSize: number): Promise<ListResponse<Post>> {
+export async function fetchPosts(page: number, pageSize: number, userName: string, password: string): Promise<ListResponse<Post>> {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Basic Ym1hY2xpc2UxejpQYXNzd29yZDE='
+            'Authorization': `Basic ${encodedAuth}`
         }
     });
     return await response.json();
 }
 
-export async function fetchPostsForUser(page: number, pageSize: number, userId: string | number) {
-    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&postedBy=${userId}`);
+export async function fetchPostsForUser(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
+    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&postedBy=${userId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${encodedAuth}`
+        }
+    });
     return await response.json();
 }
 
-export async function fetchPostsLikedBy(page: number, pageSize: number, userId: string | number) {
-    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&likedBy=${userId}`);
+export async function fetchPostsLikedBy(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
+    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&likedBy=${userId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${encodedAuth}`
+        }
+    });
     return await response.json();
 }
 
-export async function fetchPostsDislikedBy(page: number, pageSize: number, userId: string | number) {
-    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&dislikedBy=${userId}`);
+export async function fetchPostsDislikedBy(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
+    const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&dislikedBy=${userId}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Basic ${encodedAuth}`
+        }
+    });
     return await response.json();
 }
 
-export async function createPost(newPost: NewPost) {
+export async function createPost(newPost: NewPost, userName: string, password: string) {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
     const response = await fetch(`https://localhost:5001/posts/create`, {
         method: "POST",
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            'Authorization': `Basic ${encodedAuth}`
         },
         body: JSON.stringify(newPost),
     });

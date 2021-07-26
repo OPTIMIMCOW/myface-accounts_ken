@@ -4,7 +4,7 @@ import {Grid} from "../Grid/Grid";
 import "./InfiniteList.scss";
 
 interface InfiniteListProps<T> {
-    fetchItems: (page: number, pageSize: number) => Promise<ListResponse<T>>;
+    fetchItems: (page: number, pageSize: number, userName: string, password: string) => Promise<ListResponse<T>>;
     renderItem: (item: T) => ReactNode;
 }
 
@@ -26,12 +26,12 @@ export function InfiniteList<T>(props: InfiniteListProps<T>): JSX.Element {
     }
     
     useEffect(() => {
-        props.fetchItems(1, 10)
+        props.fetchItems(1, 10, "", "")
             .then(replaceItems);
     }, [props]);
 
     function incrementPage() {
-        props.fetchItems(page + 1, 10)
+        props.fetchItems(page + 1, 10, "", "")
             .then(appendItems);
     }
     
