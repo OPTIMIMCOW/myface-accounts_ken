@@ -11,8 +11,11 @@ export function Users(): JSX.Element {
     const [searchTerm, setSearchTerm] = useState("");
     const loginContext = useContext(LoginContext);
     
-    function getUsers(page: number, pageSize: number) {
-        return fetchUsers(searchTerm, page, pageSize, loginContext.userName, loginContext.password);
+    function getUsers(page: number, pageSize: number, encodedUserPass: string) {
+        const response = fetchUsers(searchTerm, page, pageSize, loginContext.encodedUserPass);
+        response.catch(()=> loginContext.logOut());
+
+        return response;
     }
     
     return (

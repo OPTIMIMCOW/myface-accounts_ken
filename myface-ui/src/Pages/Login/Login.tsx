@@ -1,20 +1,26 @@
 ﻿import React, { FormEvent, useContext, useState } from 'react';
 import { Page } from "../Page/Page";
-import { LoginContext, UserDetailsContext } from "../../Components/LoginManager/LoginManager";
+import { LoginContext } from "../../Components/LoginManager/LoginManager";
+import { basicAuth } from "../../Api/apiClient";
+import { Redirect } from "react-router-dom";
 import "./Login.scss";
 
-export function Login(): JSX.Element {
-    const loginContext = useContext(LoginContext);
-    const userContext = useContext(UserDetailsContext);
+function prepareBasicAuth(userName: string, password: string): string {
+    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
+    return `Basic ${encodedAuth}`;
+}
 
+export function Login(): JSX.Element {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const loginContext = useContext(LoginContext);
 
     function tryLogin(event: FormEvent) {
         event.preventDefault();
-        userContext.userName = username;
-        userContext.password = password;
-        loginContext.logIn(username, password);
+        const encodedUserPass = prepareBasicAuth(username, password);
+        basicAuth(encodedUserPass).catch(() => { return <Login/>} );
+        
+        loginContext.logIn(encodedUserPass);
     }
 
     return (

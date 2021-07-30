@@ -23,9 +23,9 @@ export function Profile(): JSX.Element {
         <Page containerClassName="profile">
             <UserDetails userId={id!}/>
             <div className="activity">
-                <PostList title="Posts" fetchPosts={() => fetchPostsForUser(1, 12, id,  loginContext.userName, loginContext.password)}/>
-                <PostList title="Likes" fetchPosts={() => fetchPostsLikedBy(1, 12, id,  loginContext.userName, loginContext.password)}/>
-                <PostList title="Dislikes" fetchPosts={() => fetchPostsDislikedBy(1, 12, id,  loginContext.userName, loginContext.password)}/>
+                <PostList title="Posts" fetchPosts={() => fetchPostsForUser(1, 12, id,  loginContext.encodedUserPass).catch(()=>loginContext.logOut())}/>
+                <PostList title="Likes" fetchPosts={() => fetchPostsLikedBy(1, 12, id,  loginContext.encodedUserPass).catch(()=>loginContext.logOut())}/>
+                <PostList title="Dislikes" fetchPosts={() => fetchPostsDislikedBy(1, 12, id,  loginContext.encodedUserPass).catch(()=>loginContext.logOut())}/>
             </div>
         </Page>
     );

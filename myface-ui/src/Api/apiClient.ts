@@ -40,84 +40,118 @@ export interface NewPost {
     userId: number;
 }
 
+export async function basicAuth(encodeUserPass: string): Promise<boolean> {
+    const response = await fetch(`https://localhost:5001/login`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': encodeUserPass
+        }
+    });
 
-function prepareBasicAuth(userName: string, password: string) {
-    const encodedAuth = Buffer.from(`${userName}:${password}`).toString('base64');
-    return `Basic ${encodedAuth}`;
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
+    return await response.json();
 }
 
-export async function fetchUsers(searchTerm: string, page: number, pageSize: number, userName: string, password: string): Promise<ListResponse<User>> {
+
+export async function fetchUsers(searchTerm: string, page: number, pageSize: number, encodeUserPass: string): Promise<ListResponse<User>> {
     const response = await fetch(`https://localhost:5001/users?search=${searchTerm}&page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         }
     });
+
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
     return await response.json();
 }
 
-export async function fetchUser(userId: string | number, userName: string, password: string): Promise<User> {
+export async function fetchUser(userId: string | number, encodeUserPass: string): Promise<User> {
     const response = await fetch(`https://localhost:5001/users/${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         }
     });
+
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
     return await response.json();
 }
 
-export async function fetchPosts(page: number, pageSize: number, userName: string, password: string): Promise<ListResponse<Post>> {
+export async function fetchPosts(page: number, pageSize: number, encodeUserPass: string): Promise<ListResponse<Post>> {
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         }
     });
+
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
     return await response.json();
 }
 
-export async function fetchPostsForUser(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
+export async function fetchPostsForUser(page: number, pageSize: number, userId: string | number, encodeUserPass: string) {
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&postedBy=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         }
     });
+
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
     return await response.json();
 }
 
-export async function fetchPostsLikedBy(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
+export async function fetchPostsLikedBy(page: number, pageSize: number, userId: string | number, encodeUserPass: string) {
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&likedBy=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         }
     });
+
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
     return await response.json();
 }
 
-export async function fetchPostsDislikedBy(page: number, pageSize: number, userId: string | number, userName: string, password: string) {
+export async function fetchPostsDislikedBy(page: number, pageSize: number, userId: string | number, encodeUserPass: string) {
     const response = await fetch(`https://localhost:5001/feed?page=${page}&pageSize=${pageSize}&dislikedBy=${userId}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         }
     });
+
+    if(response.status === 401){
+        throw new Error("resonse status 401");
+    }
     return await response.json();
 }
 
-export async function createPost(newPost: NewPost, userName: string, password: string) {
+export async function createPost(newPost: NewPost, encodeUserPass: string) {
     const response = await fetch(`https://localhost:5001/posts/create`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            'Authorization': prepareBasicAuth(userName,password)
+            'Authorization': encodeUserPass
         },
         body: JSON.stringify(newPost),
     });

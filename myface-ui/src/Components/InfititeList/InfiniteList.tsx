@@ -6,7 +6,7 @@ import { LoginContext} from "../../Components/LoginManager/LoginManager";
 
 
 interface InfiniteListProps<T> {
-    fetchItems: (page: number, pageSize: number, userName: string, password: string) => Promise<ListResponse<T>>;
+    fetchItems: (page: number, pageSize: number, encodedUserPass: string) => Promise<ListResponse<T>>;
     renderItem: (item: T) => ReactNode;
 }
 
@@ -15,7 +15,6 @@ export function InfiniteList<T>(props: InfiniteListProps<T>): JSX.Element {
     const [page, setPage] = useState(1);
     const [hasNextPage, setHasNextPage] = useState(false);
     const loginContext = useContext(LoginContext);
-
 
     function replaceItems(response: ListResponse<T>) {
         setItems(response.items);
@@ -30,12 +29,12 @@ export function InfiniteList<T>(props: InfiniteListProps<T>): JSX.Element {
     }
     
     useEffect(() => {
-        props.fetchItems(1, 10, loginContext.userName, loginContext.password)
+        props.fetchItems(1, 10, loginContext.encodedUserPass)
             .then(replaceItems);
     }, [props]);
 
     function incrementPage() {
-        props.fetchItems(page + 1, 10, loginContext.userName, loginContext.password)
+        props.fetchItems(page + 1, 10, loginContext.encodedUserPass)
             .then(appendItems);
     }
     

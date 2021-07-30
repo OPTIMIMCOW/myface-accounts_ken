@@ -1,5 +1,5 @@
 ﻿import React, {useEffect, useState, useContext} from 'react';
-import { LoginContext, UserDetailsContext } from "../../Components/LoginManager/LoginManager";
+import { LoginContext } from "../../Components/LoginManager/LoginManager";
 import {fetchUser, User} from "../../Api/apiClient";
 import "./UserDetails.scss";
 
@@ -11,10 +11,10 @@ export function UserDetails(props: UserDetailsProps): JSX.Element {
     const [user, setUser] = useState<User | null>(null);
     const loginContext = useContext(LoginContext);
 
-    
     useEffect(() => {
-        fetchUser(props.userId, loginContext.userName, loginContext.password)
-            .then(response => setUser(response));
+        fetchUser(props.userId, loginContext.encodedUserPass)
+            .then(response => setUser(response))
+            .catch(()=> loginContext.logOut());
     }, [props]);
     
     if (!user) {

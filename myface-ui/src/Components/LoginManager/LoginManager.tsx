@@ -1,17 +1,11 @@
 ﻿import React, { createContext, ReactNode, useState } from "react";
 
-export const UserDetailsContext = createContext({
-    password: "",
-    userName: "",
-});
-
 export const LoginContext = createContext({
     isLoggedIn: false,
     isAdmin: false,
-    logIn: (user: string, pass: string) => { },
+    logIn: (encodedUserPass:string) => { },
     logOut: () => { },
-    userName: "",
-    password: "",
+    encodedUserPass: "",
 });
 
 interface LoginManagerProps {
@@ -20,17 +14,16 @@ interface LoginManagerProps {
 
 export function LoginManager(props: LoginManagerProps): JSX.Element {
     const [loggedIn, setLoggedIn] = useState(false);
-    const [password, setPassword] = useState("");
-    const [username, setUserName] = useState("");
+    const [encodedUserPass, setEncodedUserPass] = useState("");
 
-    function logIn(username: string, password: string) {
+    function logIn(encodedUserPass: string) {
         setLoggedIn(true);
-        setPassword(password);
-        setUserName(username);
+        setEncodedUserPass(encodedUserPass);
     }
 
     function logOut() {
         setLoggedIn(false);
+        setEncodedUserPass("");
     }
 
     const context = {
@@ -38,8 +31,7 @@ export function LoginManager(props: LoginManagerProps): JSX.Element {
         isAdmin: loggedIn,
         logIn: logIn,
         logOut: logOut,
-        userName: username,
-        password: password,
+        encodedUserPass: encodedUserPass,
     };
 
     return (
